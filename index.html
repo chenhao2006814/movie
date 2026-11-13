@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>影视聚合搜索</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 顶部标题 -->
+    <header class="app-header">
+        <h1>影视聚合搜索</h1>
+    </header>
+
+    <!-- 源卡片区 -->
+    <section class="source-section">
+        <div class="source-grid" id="sourceGrid">
+            <!-- 假数据源卡片 -->
+            <div class="source-card active" onclick="selectSource(this)">天涯资源</div>
+            <div class="source-card" onclick="selectSource(this)">360资源</div>
+            <div class="source-card" onclick="selectSource(this)">非凡资源</div>
+            <!-- 管理员专属的加号卡片 -->
+            <div class="source-card add-btn" id="addSourceBtn" style="display:block;" onclick="openAdminModal()">+</div>
+        </div>
+    </section>
+
+    <!-- 搜索区 -->
+    <section class="search-section">
+        <div class="search-bar">
+            <div class="search-dropdown" id="searchTypeBtn">
+                <span id="searchTypeText">当前资源</span>
+                <span class="arrow">▼</span>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="dropdown-item" data-type="current">当前资源</div>
+                    <div class="dropdown-item" data-type="all">全站搜索</div>
+                </div>
+            </div>
+            <input type="text" id="searchInput" placeholder="输入关键词搜索...">
+            <button class="search-btn" id="searchBtn">搜索</button>
+        </div>
+    </section>
+
+    <!-- 分类导航区 -->
+    <section class="category-nav" id="categoryNav">
+        <div class="cat-item active">最新</div>
+        <div class="cat-item">电影</div>
+        <div class="cat-item">电视剧</div>
+        <div class="cat-item">动漫</div>
+    </section>
+
+    <!-- 主展示区 -->
+    <main class="main-content" id="mainContent">
+        <!-- 状态①：主页展示 -->
+        <div id="viewHome" class="view-section">
+            <div class="poster-grid">
+                <div class="poster-card" onclick="log('点击了海报：一部好看的电影')">
+                    <div class="poster-img-wrap">
+                        <img src="https://via.placeholder.com/300x400/e0c3a6/fff?text=Poster">
+                        <span class="poster-tag">电影</span>
+                    </div>
+                    <div class="poster-name">一部好看的电影名字很长很长</div>
+                </div>
+                <div class="poster-card" onclick="log('点击了海报：狂飙')">
+                    <div class="poster-img-wrap">
+                        <img src="https://via.placeholder.com/300x400/e0c3a6/fff?text=Poster">
+                        <span class="poster-tag">更新至24集</span>
+                    </div>
+                    <div class="poster-name">狂飙</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 状态③：全站搜索结果 -->
+        <div id="viewAllSearch" class="view-section" style="display:none;">
+            <h2 class="search-title">搜索结果：狂飙</h2>
+            <div class="source-grid summary-grid">
+                <div class="source-card active">天涯 (12条)</div>
+                <div class="source-card">360 (5条)</div>
+            </div>
+
+            <div class="group-section">
+                <div class="group-header">
+                    <h3>天涯资源</h3>
+                    <span class="all-btn" onclick="log('点击了天涯的全部结果')">全部结果 ></span>
+                </div>
+                <div class="poster-grid">
+                    <div class="poster-card"><div class="poster-img-wrap"><img src="https://via.placeholder.com/300x400/e0c3a6/fff?text=Poster"><span class="poster-tag">电影</span></div><div class="poster-name">狂飙</div></div>
+                    <div class="poster-card"><div class="poster-img-wrap"><img src="https://via.placeholder.com/300x400/e0c3a6/fff?text=Poster"><span class="poster-tag">电影</span></div><div class="poster-name">狂飙</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="app-footer">
+        <span>今日访客：0 人</span> | <span>影视聚合搜索 · 自用版</span>
+    </footer>
+
+    <!-- 管理员弹窗 -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">管理员登录</h3>
+                <span class="guest-btn" id="guestBtn" style="display:none;" onclick="logoutAdmin()">游客</span>
+            </div>
+            
+            <div id="loginView">
+                <input type="password" id="pwdInput" placeholder="请输入管理员密码 (123456)">
+                <div class="modal-btns">
+                    <button class="btn-cancel" onclick="closeAdminModal()">取消</button>
+                    <button class="btn-confirm" onclick="checkLogin()">登录</button>
+                </div>
+            </div>
+
+            <div id="addView" style="display:none;">
+                <input type="text" id="addName" placeholder="源名称（例：天涯）">
+                <input type="text" id="addApi" placeholder="API 接口地址">
+                <div class="modal-btns">
+                    <button class="btn-cancel" onclick="closeAdminModal()">取消</button>
+                    <button class="btn-confirm" onclick="log('点击了确认添加')">确认添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🚀 移动端专属调试窗口 -->
+    <div id="debugBox">
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:4px;">
+            <span>Debug Console</span>
+            <span style="cursor:pointer;" onclick="document.getElementById('debugBox').style.display='none'">✖</span>
+        </div>
+        <div id="debugContent">【调试窗口已启动】</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
