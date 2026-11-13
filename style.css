@@ -132,10 +132,11 @@ body {
 /* 编辑/删除 悬浮按钮容器 */
 .card-ops {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    display: none; /* 默认隐藏 */
-    gap: 4px;
+    top: 4px;
+    left: 4px;   /* 加上左边距 */
+    right: 4px;  /* 加上右边距，撑满整个卡片内部 */
+    display: none; 
+    justify-content: space-between; /* 关键：让里面的按钮分居左右两端 */
     z-index: 20;
 }
 .card-ops.show {

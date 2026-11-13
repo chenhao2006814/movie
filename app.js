@@ -173,28 +173,51 @@ dropdownItems.forEach(item => {
     };
 
     // 模拟：添加/渲染卡片时，根据是否管理员生成对应的按钮
-    window.renderCards = function() {
-        const sourceCards = document.querySelectorAll('.source-card:not(.add-btn)');
-        sourceCards.forEach((card, index) => {
-            // 先清理旧的按钮
-            const oldOps = card.querySelector('.card-ops');
-            if (oldOps) oldOps.remove();
-            card.classList.remove('active-admin');
+   // 模拟：添加/渲染卡片时，根据是否管理员生成对应的按钮
+window.renderCards = function() {
+    const sourceCards = document.querySelectorAll('.source-card:not(.add-btn)');
+    sourceCards.forEach((card, index) => {
+        // 先清理旧的按钮
+        const oldOps = card.querySelector('.card-ops');
+        if (oldOps) oldOps.remove();
+        card.classList.remove('active-admin');
 
-            if (isAdmin) {
-                card.classList.add('active-admin');
-                // 动态插入操作按钮
-                const opsHtml = `
-                    <div class="card-ops">
-                        <button class="opt-btn edit" onclick="log('点击编辑源: ${index}')">✎</button>
-                        <button class="opt-btn del" onclick="log('点击删除源: ${index}')">✕</button>
-                    </div>
-                `;
-                card.insertAdjacentHTML('beforeend', opsHtml);
-            }
-        });
-    };
+        if (isAdmin) {
+            card.classList.add('active-admin');
+            // 动态插入操作按钮，并绑定真实的弹窗逻辑
+            const opsHtml = `
+                <div class="card-ops">
+                    <button class="opt-btn edit" onclick="handleEdit(${index})">✎</button>
+                    <button class="opt-btn del" onclick="handleDelete(${index})">✕</button>
+                </div>
+            `;
+            card.insertAdjacentHTML('beforeend', opsHtml);
+        }
+    });
+};
 
+// 编辑按钮点击逻辑
+window.handleEdit = function(index) {
+    // 阻止冒泡，防止触发外层卡片的点击事件
+    event.stopPropagation(); 
+    log(`准备编辑第 ${index} 个源`);
+    
+    // 这里先做个模拟弹窗，后期接数据库后改成填表
+    const newName = prompt("请输入新的源名称:", "修改后的源");
+    if(newName) {
+        alert(`前端模拟：已将源名称改为 ${newName}，后期接后端后生效。`);
+    }
+};
+
+// 删除按钮点击逻辑
+window.handleDelete = function(index) {
+    event.stopPropagation();
+    log(`准备删除第 ${index} 个源`);
+    
+    if (confirm("确定要删除这个搜索源吗？")) {
+        alert(`前端模拟：已删除第 ${index} 个源，后期接后端后生效。`);
+    }
+};
     // 全局点击空白处，收起编辑删除按钮
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.source-card')) {
