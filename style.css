@@ -67,22 +67,26 @@ body {
     color: var(--theme-color); 
     font-weight: 600;
 }
+/* 让外层卡片变成相对定位的容器 */
+/* 让外层卡片变成相对定位的容器 */
 .source-card.add-btn {
     border: 1px dashed var(--text-sub); 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0; 
+    position: relative; /* 关键：作为参考系 */
+    padding: 0 !important; 
     height: 100%;
-    min-height: 38px; /* 和旁边卡片高度保持一致 */
+    min-height: 38px;
     box-sizing: border-box;
 }
 
-/* 用 CSS 画一个完美居中的加号 */
+/* 强制把加号绝对定位到正中心 */
 .plus-icon {
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: 14px;
     height: 14px;
+    /* 往上、往左偏移自身宽高的一半，实现完美物理居中 */
+    transform: translate(-50%, -50%);
     display: block;
 }
 
