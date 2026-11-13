@@ -69,17 +69,47 @@ body {
 }
 .source-card.add-btn {
     border: 1px dashed var(--text-sub); 
-    color: var(--text-sub); 
-    font-size: 22px; /* 稍微放大一点 */
-    font-family: Arial, sans-serif; /* 用英文字体保证符号绝对居中 */
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0; 
-    height: 100%; /* 强制和旁边的卡片同高 */
+    height: 100%;
+    min-height: 38px; /* 和旁边卡片高度保持一致 */
     box-sizing: border-box;
-    /* 用行高来微调加号的垂直位置 */
-    line-height: 1;
+}
+
+/* 用 CSS 画一个完美居中的加号 */
+.plus-icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+.plus-icon::before,
+.plus-icon::after {
+    content: '';
+    position: absolute;
+    background-color: var(--text-sub);
+    border-radius: 1px;
+}
+
+/* 横线 */
+.plus-icon::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    transform: translateY(-50%);
+}
+
+/* 竖线 */
+.plus-icon::after {
+    top: 0;
+    left: 50%;
+    width: 1.5px;
+    height: 100%;
+    transform: translateX(-50%);
 }
 
 /* 搜索区 */
