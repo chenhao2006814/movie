@@ -104,25 +104,41 @@ searchBtn.addEventListener('click', async () => {
 });
 
 // 渲染真实的电影海报
+// 渲染真实的电影海报并绑定跳转
 function renderRealPosters(dataList) {
-    // 找主页那个容器
     const homeGrid = document.querySelector('#viewHome .poster-grid');
-    homeGrid.innerHTML = ''; // 清空假海报
+    homeGrid.innerHTML = ''; 
     
-    // 只取前 12 条防止太长
     dataList.slice(0, 12).forEach(movie => {
-        // 苹果CMS标准字段：vod_name, vod_pic, vod_remarks
         const name = movie.vod_name || '未知';
         const pic = movie.vod_pic || 'https://via.placeholder.com/300x400/e0c3a6/fff?text=No+Image';
         const remarks = movie.vod_remarks || '';
+        const vodId = movie.vod_id;
+        
+        // 提取当前选中的源域名，用来拼接详情页链接
+        let domain = "https://360zy.com"; // 默认兜底
+        if (activeCard && activeCard.dataset.api) {
+            try {
+                const urlObj = new URL(activeCard.dataset.api);
+                domain = urlObj.origin;
+            } catch(e) {}
+        }
+        
+        // 拼接真实的详情页跳转链接
+        const detailUrl = `${domain}/index.php/vod/detail/id/${vodId}.html`;
         
         const card = document.createElement('div');
         card.className = 'poster-card';
-        card.onclick = () => log(`点击了电影：${name}`);
+        // 点击打开新窗口跳转
+        card.onclick = () => {
+            log(`跳转到: ${detailUrl}`);
+            window.open(detailUrl, '_blank', 'noopener,noreferrer');
+        };
         
         card.innerHTML = `
             <div class="poster-img-wrap">
-                <img src="${pic}" alt="${name}" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
+                <!-- referrerpolicy 防止防盗链 -->
+                <img src="${pic}" alt="${name}" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
                 ${remarks ? `<span class="poster-tag">${remarks}</span>` : ''}
             </div>
             <div class="poster-name">${name}</div>
