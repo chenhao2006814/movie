@@ -127,74 +127,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============ 播放器核心逻辑 ============
-    let dp = null; // 全局播放器实例
+    // ============ 播放器核心逻辑 ============
+let dp = null; // 全局播放器实例
 
-    window.openPlayerModal = function(movie) {
-        log(`打开播放器: ${movie.vod_name}`);
-        document.getElementById('playerModal').classList.add('show');
-        document.getElementById('playTitle').textContent = movie.vod_name;
+window.openPlayerModal = function(movie) {
+    log(`打开播放器: ${movie.vod_name}`);
+    
+    // 🚀 核心：往浏览器历史里推入一个状态，拦截返回键
+    history.pushState({ modal: 'player' }, '', '#play');
+
+    document.getElementById('playerModal').classList.add('show');
+    document.getElementById('playTitle').textContent = movie.vod_name;
+    
+    const desc = movie.vod_content ? movie.vod_content.replace(/<[^>]+>/g, '') : '暂无简介';
+    document.getElementById('playDesc').textContent = desc;
+
+    const epContainer = document.getElementById('playEpisodes');
+    epContainer.innerHTML = '';
+
+    const playUrls = movie.vod_play_url ? movie.vod_play_url.split('#') : [];
+    
+    if (playUrls.length === 0 || !playUrls[0]) {
+        epContainer.innerHTML = '<span style="color:#fff">暂无可用播放源</span>';
+        return;
+    }
+
+    playUrls.forEach((ep, index) => {
+        const epInfo = ep.split('$'); 
+        if (epInfo.length < 2) return;
+
+        const epName = epInfo[0];
+        const epUrl = epInfo[1];
+
+        const btn = document.createElement('div');
+        btn.style.cssText = "text-align:center; padding: 8px; background: #222; color: #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;";
+        btn.textContent = epName;
+        btn.onclick = () => playVideo(epUrl, epName);
+        epContainer.appendChild(btn);
         
-        // 去除简介里的 HTML 标签
-        const desc = movie.vod_content ? movie.vod_content.replace(/<[^>]+>/g, '') : '暂无简介';
-        document.getElementById('playDesc').textContent = desc;
-
-        const epContainer = document.getElementById('playEpisodes');
-        epContainer.innerHTML = '';
-
-        // 解析剧集 (苹果CMS格式: 第01集$链接#第02集$链接)
-        const playUrls = movie.vod_play_url ? movie.vod_play_url.split('#') : [];
-        
-        if (playUrls.length === 0 || !playUrls[0]) {
-            epContainer.innerHTML = '<span style="color:#fff">暂无可用播放源</span>';
-            return;
+        if (index === 0) {
+            setTimeout(() => playVideo(epUrl, epName), 100);
         }
+    });
+};
 
-        playUrls.forEach((ep, index) => {
-            const epInfo = ep.split('$'); 
-            if (epInfo.length < 2) return;
+window.playVideo = function(url, title) {
+    log(`开始播放: ${title}`);
+    document.getElementById('playTitle').textContent = title;
 
-            const epName = epInfo[0];
-            const epUrl = epInfo[1];
+    if (dp) {
+        dp.destroy(); 
+    }
 
-            const btn = document.createElement('div');
-            btn.style.cssText = "text-align:center; padding: 8px; background: #222; color: #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;";
-            btn.textContent = epName;
-            btn.onclick = () => playVideo(epUrl, epName);
-            epContainer.appendChild(btn);
-            
-            // 默认自动播放第一集
-            if (index === 0) {
-                setTimeout(() => playVideo(epUrl, epName), 100);
-            }
-        });
-    };
-
-    window.playVideo = function(url, title) {
-        log(`开始播放: ${title}`);
-        document.getElementById('playTitle').textContent = title;
-
-        if (dp) {
-            dp.destroy(); // 销毁旧实例
+    dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        autoplay: true,
+        theme: '#d97736',
+        video: {
+            url: url,
+            type: 'auto' 
         }
+    });
+};
 
-        // 初始化 DPlayer
-        dp = new DPlayer({
-            container: document.getElementById('dplayer'),
-            autoplay: true,
-            theme: '#d97736',
-            video: {
-                url: url,
-                type: 'auto' // 自动识别 m3u8
-            }
-        });
-    };
+window.closePlayerModal = function() {
+    document.getElementById('playerModal').classList.remove('show');
+    if (dp) {
+        dp.pause();
+    }
+};
 
-    window.closePlayerModal = function() {
-        document.getElementById('playerModal').classList.remove('show');
-        if (dp) {
-            dp.pause();
-        }
-    };
+// 🚀 核心：监听浏览器的返回操作
+window.addEventListener('popstate', function(e) {
+    // 如果播放器是打开的，就把播放器关掉
+    const playerModal = document.getElementById('playerModal');
+    if (playerModal.classList.contains('show')) {
+        closePlayerModal();
+        log("触发返回键，关闭播放器");
+    }
+});
 
     // 3. 管理员交互逻辑
     const adminModal = document.getElementById('adminModal');
