@@ -114,13 +114,18 @@
                 <span class="guest-btn" id="guestBtn" style="display:none;" onclick="logoutAdmin()">游客</span>
             </div>
             
-            <div id="loginView">
-                <input type="password" id="pwdInput" placeholder="请输入管理员密码 (123456)">
-                <div class="modal-btns">
-                    <button class="btn-cancel" onclick="closeAdminModal()">取消</button>
-                    <button class="btn-confirm" onclick="checkLogin()">登录</button>
-                </div>
-            </div>
+         <div id="loginView">
+    <!-- 加上这个相对定位的包裹层，用来放小眼睛 -->
+    <div style="position: relative;">
+        <input type="password" id="pwdInput" placeholder="请输入管理员密码 (123456)" style="margin-bottom: 12px; padding-right: 40px; width: 100%;">
+        <span id="togglePwd" style="position: absolute; right: 12px; top: 12px; cursor: pointer; font-size: 16px; color: #888;">👁</span>
+    </div>
+    
+    <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeAdminModal()">取消</button>
+        <button class="btn-confirm" onclick="checkLogin()">登录</button>
+    </div>
+</div>
 
             <div id="addView" style="display:none;">
                 <input type="text" id="addName" placeholder="源名称（例：天涯）">

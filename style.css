@@ -116,6 +116,48 @@ body {
     transform: translateX(-50%);
 }
 
+/* 禁止长按选中文字和弹出系统菜单 */
+.source-card {
+    -webkit-touch-callout: none; /* 核心：禁止 iOS 长按弹菜单 */
+    user-select: none; /* 禁止文字被选中 */
+    -webkit-user-select: none;
+}
+
+/* 选中卡片时的状态（管理员专属） */
+.source-card.active-admin {
+    position: relative;
+    box-shadow: 0 4px 12px rgba(217, 119, 54, 0.2);
+}
+
+/* 编辑/删除 悬浮按钮容器 */
+.card-ops {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: none; /* 默认隐藏 */
+    gap: 4px;
+    z-index: 20;
+}
+.card-ops.show {
+    display: flex;
+}
+/* 按钮样式 */
+.opt-btn {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+.opt-btn.edit { color: #4080ff; }
+.opt-btn.del { color: #f53f3f; }
+
 /* 搜索区 */
 .search-section { padding: 0 16px; margin-bottom: 16px; position: relative; z-index: 10; }
 .search-bar {
