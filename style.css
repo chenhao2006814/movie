@@ -130,34 +130,47 @@ body {
 }
 
 /* 编辑/删除 悬浮按钮容器 */
+/* 修正：让操作按钮绝对定位在两端 */
 .card-ops {
     position: absolute;
     top: 4px;
-    left: 4px;   /* 加上左边距 */
-    right: 4px;  /* 加上右边距，撑满整个卡片内部 */
+    left: 4px;
+    right: 4px;
     display: none; 
-    justify-content: space-between; /* 关键：让里面的按钮分居左右两端 */
     z-index: 20;
 }
-.card-ops.show {
-    display: flex;
+.card-ops.show { display: block; }
+
+/* 分别定位编辑和删除 */
+.opt-btn.edit {
+    position: absolute;
+    left: 0; /* 死死钉在左边 */
+    top: 0;
 }
-/* 按钮样式 */
-.opt-btn {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    cursor: pointer;
+.opt-btn.del {
+    position: absolute;
+    right: 0; /* 死死钉在右边 */
+    top: 0;
 }
-.opt-btn.edit { color: #4080ff; }
-.opt-btn.del { color: #f53f3f; }
+
+/* 通用弹窗样式（复用于编辑和删除） */
+.modal-mask {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4); display: none;
+    justify-content: center; align-items: center; z-index: 200;
+}
+.modal-mask.show { display: flex; }
+.modal-box {
+    background: var(--bg-color); width: 85%; max-width: 340px;
+    border-radius: var(--border-radius); padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.modal-box input {
+    width: 100%; padding: 10px 12px; margin-bottom: 12px;
+    border: 1px solid #e8e0d5; border-radius: 8px;
+    background: var(--card-bg); font-size: 14px; outline: none;
+}
 
 /* 搜索区 */
 .search-section { padding: 0 16px; margin-bottom: 16px; position: relative; z-index: 10; }

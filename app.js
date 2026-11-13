@@ -197,27 +197,52 @@ window.renderCards = function() {
 };
 
 // 编辑按钮点击逻辑
+// ============ 自定义编辑弹窗逻辑 ============
 window.handleEdit = function(index) {
-    // 阻止冒泡，防止触发外层卡片的点击事件
     event.stopPropagation(); 
-    log(`准备编辑第 ${index} 个源`);
+    log(`打开编辑弹窗: 第 ${index} 个源`);
     
-    // 这里先做个模拟弹窗，后期接数据库后改成填表
-    const newName = prompt("请输入新的源名称:", "修改后的源");
-    if(newName) {
-        alert(`前端模拟：已将源名称改为 ${newName}，后期接后端后生效。`);
-    }
+    // 假装这里拿到了源的数据，后期换成真实数据
+    const oldName = document.querySelectorAll('.source-card:not(.add-btn)')[index].textContent.replace('✎✕', '').trim();
+    
+    document.getElementById('editIndex').value = index;
+    document.getElementById('editName').value = oldName;
+    document.getElementById('editApi').value = "https://.../api.php/provide/vod/"; // 假接口
+    
+    document.getElementById('editModal').classList.add('show');
 };
 
-// 删除按钮点击逻辑
+window.closeEditModal = function() {
+    document.getElementById('editModal').classList.remove('show');
+};
+
+window.saveEdit = function() {
+    const idx = document.getElementById('editIndex').value;
+    const newName = document.getElementById('editName').value;
+    log(`保存修改：索引 ${idx} 名称改为 ${newName}`);
+    closeEditModal();
+    alert('前端模拟：保存成功，接后端后真实生效');
+};
+
+// ============ 自定义删除弹窗逻辑 ============
 window.handleDelete = function(index) {
     event.stopPropagation();
-    log(`准备删除第 ${index} 个源`);
-    
-    if (confirm("确定要删除这个搜索源吗？")) {
-        alert(`前端模拟：已删除第 ${index} 个源，后期接后端后生效。`);
-    }
+    log(`打开删除确认弹窗: 第 ${index} 个源`);
+    document.getElementById('deleteIndex').value = index;
+    document.getElementById('deleteModal').classList.add('show');
 };
+
+window.closeDeleteModal = function() {
+    document.getElementById('deleteModal').classList.remove('show');
+};
+
+window.confirmDelete = function() {
+    const idx = document.getElementById('deleteIndex').value;
+    log(`确认删除：索引 ${idx}`);
+    closeDeleteModal();
+    alert('前端模拟：已删除，接后端后真实生效');
+};
+
     // 全局点击空白处，收起编辑删除按钮
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.source-card')) {
