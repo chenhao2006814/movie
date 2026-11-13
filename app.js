@@ -10,43 +10,35 @@ function log(msg) {
 document.addEventListener('DOMContentLoaded', () => {
     log("页面加载完成，JS 已启动");
 
-// 1. 下拉框逻辑（增加高亮状态与点击收起）
-const searchTypeBtn = document.getElementById('searchTypeBtn');
-const dropdownMenu = document.getElementById('dropdownMenu');
-const searchTypeText = document.getElementById('searchTypeText');
-const dropdownItems = document.querySelectorAll('.dropdown-item');
-let currentSearchType = 'current';
+    // 1. 下拉框逻辑
+    const searchTypeBtn = document.getElementById('searchTypeBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const searchTypeText = document.getElementById('searchTypeText');
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    let currentSearchType = 'current';
 
-// 打开/关闭下拉
-searchTypeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dropdownMenu.classList.toggle('show');
-});
-
-// 点击页面任何其他地方，自动收起菜单
-document.addEventListener('click', (e) => {
-    if (!searchTypeBtn.contains(e.target)) {
-        dropdownMenu.classList.remove('show');
-    }
-});
-
-// 点击选项
-dropdownItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-        e.stopPropagation(); // 阻止冒泡，防止触发外层的关闭逻辑
-        
-        currentSearchType = e.target.dataset.type;
-        searchTypeText.textContent = e.target.textContent;
-        
-        // 移除所有高亮，给当前点击的加上高亮
-        dropdownItems.forEach(i => i.classList.remove('active'));
-        e.target.classList.add('active');
-        
-        // 自动收起菜单
-        dropdownMenu.classList.remove('show');
-        log(`切换搜索模式: ${e.target.textContent}`);
+    searchTypeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdownMenu.classList.toggle('show');
     });
-});
+
+    document.addEventListener('click', (e) => {
+        if (!searchTypeBtn.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+        }
+    });
+
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            currentSearchType = e.target.dataset.type;
+            searchTypeText.textContent = e.target.textContent;
+            dropdownItems.forEach(i => i.classList.remove('active'));
+            e.target.classList.add('active');
+            dropdownMenu.classList.remove('show');
+            log(`切换搜索模式: ${e.target.textContent}`);
+        });
+    });
 
     // ============ 小眼睛密码切换逻辑 ============
     const pwdInput = document.getElementById('pwdInput');
@@ -99,7 +91,6 @@ dropdownItems.forEach(item => {
     const addView = document.getElementById('addView');
     const guestBtn = document.getElementById('guestBtn');
     
-    // 全局管理员状态
     window.isAdmin = false;
 
     window.openAdminModal = function() {
@@ -126,19 +117,17 @@ dropdownItems.forEach(item => {
     window.checkLogin = function() {
         const pwd = document.getElementById('pwdInput').value;
         if (pwd === '123456') {
-            isAdmin = true; // 记录状态
+            isAdmin = true;
             modalTitle.textContent = '添加新搜索源';
             loginView.style.display = 'none';
             addView.style.display = 'block';
             guestBtn.style.display = 'block';
             document.getElementById('pwdInput').value = '';
             log("密码正确，切换至添加源视图");
-            
-            // 重新渲染卡片，让编辑删除按钮生效
             renderCards(); 
         } else {
             log("密码错误");
-            alert('密码错误！');
+            showToast('密码错误，请重试');
         }
     };
 
@@ -147,22 +136,17 @@ dropdownItems.forEach(item => {
         adminModal.classList.remove('show');
         guestBtn.style.display = 'none';
         log("退出管理员，切换回游客模式");
-        // 重新渲染卡片，隐藏所有编辑按钮
         renderCards();
     };
 
-    // ============ 源卡片点击与编辑删除逻辑 ============
-    // 重写选择源函数（因为要处理管理员状态）
+    // ============ 源卡片点击与操作按钮逻辑 ============
     window.selectSource = function(el) {
-        // 如果是管理员，点击卡片显示/隐藏操作按钮，但依然选中
         document.querySelectorAll('.source-card').forEach(c => c.classList.remove('active'));
         el.classList.add('active');
         
-        // 隐藏所有卡片的按钮
         document.querySelectorAll('.card-ops').forEach(ops => ops.classList.remove('show'));
 
         if (isAdmin) {
-            // 如果是管理员，直接显示这个卡片的编辑按钮（挂载在节点上）
             const ops = el.querySelector('.card-ops');
             if (ops) {
                 ops.classList.add('show');
@@ -172,82 +156,121 @@ dropdownItems.forEach(item => {
         }
     };
 
-    // 模拟：添加/渲染卡片时，根据是否管理员生成对应的按钮
-   // 模拟：添加/渲染卡片时，根据是否管理员生成对应的按钮
-window.renderCards = function() {
-    const sourceCards = document.querySelectorAll('.source-card:not(.add-btn)');
-    sourceCards.forEach((card, index) => {
-        // 先清理旧的按钮
-        const oldOps = card.querySelector('.card-ops');
-        if (oldOps) oldOps.remove();
-        card.classList.remove('active-admin');
+    window.renderCards = function() {
+        const sourceCards = document.querySelectorAll('.source-card:not(.add-btn)');
+        sourceCards.forEach((card, index) => {
+            const oldOps = card.querySelector('.card-ops');
+            if (oldOps) oldOps.remove();
+            card.classList.remove('active-admin');
 
-        if (isAdmin) {
-            card.classList.add('active-admin');
-            // 动态插入操作按钮，并绑定真实的弹窗逻辑
-            const opsHtml = `
-                <div class="card-ops">
-                    <button class="opt-btn edit" onclick="handleEdit(${index})">✎</button>
-                    <button class="opt-btn del" onclick="handleDelete(${index})">✕</button>
-                </div>
-            `;
-            card.insertAdjacentHTML('beforeend', opsHtml);
-        }
-    });
-};
+            if (isAdmin) {
+                card.classList.add('active-admin');
+                const opsHtml = `
+                    <div class="card-ops">
+                        <button class="opt-btn edit" onclick="handleEdit(event, ${index})">✎</button>
+                        <button class="opt-btn del" onclick="handleDelete(event, ${index})">✕</button>
+                    </div>
+                `;
+                card.insertAdjacentHTML('beforeend', opsHtml);
+            }
+        });
+    };
 
-// 编辑按钮点击逻辑
-// ============ 自定义编辑弹窗逻辑 ============
-window.handleEdit = function(index) {
-    event.stopPropagation(); 
-    log(`打开编辑弹窗: 第 ${index} 个源`);
-    
-    // 假装这里拿到了源的数据，后期换成真实数据
-    const oldName = document.querySelectorAll('.source-card:not(.add-btn)')[index].textContent.replace('✎✕', '').trim();
-    
-    document.getElementById('editIndex').value = index;
-    document.getElementById('editName').value = oldName;
-    document.getElementById('editApi').value = "https://.../api.php/provide/vod/"; // 假接口
-    
-    document.getElementById('editModal').classList.add('show');
-};
+    // ============ 自定义编辑弹窗逻辑 ============
+    window.handleEdit = function(e, index) {
+        if(e) e.stopPropagation(); 
+        log(`打开编辑弹窗: 第 ${index} 个源`);
+        
+        const cardEl = document.querySelectorAll('.source-card:not(.add-btn)')[index];
+        // 提取卡片纯文本
+        let oldName = "";
+        cardEl.childNodes.forEach(node => {
+            if(node.nodeType === 3 && node.textContent.trim()) oldName += node.textContent.trim();
+        });
+        if(!oldName) oldName = "未知源";
+        
+        document.getElementById('editIndex').value = index;
+        document.getElementById('editName').value = oldName;
+        document.getElementById('editApi').value = "https://tyyszyapi.com/api.php/provide/vod/"; 
+        
+        document.getElementById('editModal').classList.add('show');
+    };
 
-window.closeEditModal = function() {
-    document.getElementById('editModal').classList.remove('show');
-};
+    window.closeEditModal = function() {
+        document.getElementById('editModal').classList.remove('show');
+    };
 
-window.saveEdit = function() {
-    const idx = document.getElementById('editIndex').value;
-    const newName = document.getElementById('editName').value;
-    log(`保存修改：索引 ${idx} 名称改为 ${newName}`);
-    closeEditModal();
-    alert('前端模拟：保存成功，接后端后真实生效');
-};
+    window.saveEdit = function() {
+        const idx = document.getElementById('editIndex').value;
+        const newName = document.getElementById('editName').value.trim();
+        if(!newName) return showToast('源名称不能为空');
+        
+        log(`保存修改：索引 ${idx} 名称改为 ${newName}`);
+        closeEditModal();
+        showToast('修改成功（前端模拟）');
+    };
 
-// ============ 自定义删除弹窗逻辑 ============
-window.handleDelete = function(index) {
-    event.stopPropagation();
-    log(`打开删除确认弹窗: 第 ${index} 个源`);
-    document.getElementById('deleteIndex').value = index;
-    document.getElementById('deleteModal').classList.add('show');
-};
+    // ============ 自定义删除弹窗逻辑 ============
+    window.handleDelete = function(e, index) {
+        if(e) e.stopPropagation();
+        log(`打开删除确认弹窗: 第 ${index} 个源`);
+        document.getElementById('deleteIndex').value = index;
+        document.getElementById('deleteModal').classList.add('show');
+    };
 
-window.closeDeleteModal = function() {
-    document.getElementById('deleteModal').classList.remove('show');
-};
+    window.closeDeleteModal = function() {
+        document.getElementById('deleteModal').classList.remove('show');
+    };
 
-window.confirmDelete = function() {
-    const idx = document.getElementById('deleteIndex').value;
-    log(`确认删除：索引 ${idx}`);
-    closeDeleteModal();
-    alert('前端模拟：已删除，接后端后真实生效');
-};
+    window.confirmDelete = function() {
+        const idx = document.getElementById('deleteIndex').value;
+        log(`确认删除：索引 ${idx}`);
+        closeDeleteModal();
+        showToast('删除成功（前端模拟）');
+    };
 
-    // 全局点击空白处，收起编辑删除按钮
+    // 点击空白处收起按钮
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.source-card')) {
             document.querySelectorAll('.card-ops').forEach(ops => ops.classList.remove('show'));
         }
     });
 
+    // ============ 提示框与校验逻辑 ============
+    window.showToast = function(msg) {
+        const toast = document.getElementById('toastMsg');
+        toast.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2000);
+    };
+
+    window.submitAddSource = function() {
+        const nameInput = document.getElementById('addName').value.trim();
+        const apiInput = document.getElementById('addApi').value.trim();
+
+        if (!nameInput) return showToast('源名称不能为空');
+        if (!apiInput) return showToast('API 接口地址不能为空');
+        if (!apiInput.startsWith('http://') && !apiInput.startsWith('https://')) return showToast('接口地址必须以 http 或 https 开头');
+
+        const existingCards = document.querySelectorAll('.source-card:not(.add-btn)');
+        let isRepeat = false;
+        existingCards.forEach(card => {
+            let cardText = "";
+            card.childNodes.forEach(node => {
+                if(node.nodeType === 3 && node.textContent.trim()) cardText += node.textContent.trim();
+            });
+            if (cardText === nameInput) isRepeat = true;
+        });
+
+        if (isRepeat) return showToast('该源名称已存在，请勿重复添加');
+
+        showToast('添加成功！');
+        log(`前端模拟：添加了新源 [${nameInput}]`);
+        
+        document.getElementById('addName').value = '';
+        document.getElementById('addApi').value = '';
+        closeAdminModal();
+    };
 });

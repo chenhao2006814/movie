@@ -30,7 +30,6 @@ body {
     font-size: 24px; 
     font-weight: 700; 
     letter-spacing: 1px;
-    /* 大标题渐变色 */
     background: linear-gradient(90deg, #d97736, #e6a25e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -42,11 +41,11 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* 源卡片区（改为一行 5 个，底色融合） */
+/* 源卡片区 */
 .source-section { padding: 0 16px; margin-bottom: 16px; }
 .source-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .source-card {
-    background: transparent; /* 底色变为透明，与页面融合 */
+    background: transparent;
     border: 1px solid #e8e0d5;
     border-radius: 8px;
     padding: 10px 2px; 
@@ -59,37 +58,35 @@ body {
     overflow: hidden; 
     text-overflow: ellipsis; 
     white-space: nowrap;
+    -webkit-touch-callout: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
-/* 选中状态保留描边 */
 .source-card.active {
     border: 1.5px solid var(--theme-color); 
     background-color: var(--theme-light);
     color: var(--theme-color); 
     font-weight: 600;
 }
-/* 让外层卡片变成相对定位的容器 */
-/* 让外层卡片变成相对定位的容器 */
+
+/* 加号卡片专用 */
 .source-card.add-btn {
     border: 1px dashed var(--text-sub); 
-    position: relative; /* 关键：作为参考系 */
+    position: relative; 
     padding: 0 !important; 
     height: 100%;
     min-height: 38px;
     box-sizing: border-box;
 }
-
-/* 强制把加号绝对定位到正中心 */
 .plus-icon {
     position: absolute;
     top: 50%;
     left: 50%;
     width: 14px;
     height: 14px;
-    /* 往上、往左偏移自身宽高的一半，实现完美物理居中 */
     transform: translate(-50%, -50%);
     display: block;
 }
-
 .plus-icon::before,
 .plus-icon::after {
     content: '';
@@ -97,8 +94,6 @@ body {
     background-color: var(--text-sub);
     border-radius: 1px;
 }
-
-/* 横线 */
 .plus-icon::before {
     top: 50%;
     left: 0;
@@ -106,21 +101,12 @@ body {
     height: 1.5px;
     transform: translateY(-50%);
 }
-
-/* 竖线 */
 .plus-icon::after {
     top: 0;
     left: 50%;
     width: 1.5px;
     height: 100%;
     transform: translateX(-50%);
-}
-
-/* 禁止长按选中文字和弹出系统菜单 */
-.source-card {
-    -webkit-touch-callout: none; /* 核心：禁止 iOS 长按弹菜单 */
-    user-select: none; /* 禁止文字被选中 */
-    -webkit-user-select: none;
 }
 
 /* 选中卡片时的状态（管理员专属） */
@@ -130,7 +116,6 @@ body {
 }
 
 /* 编辑/删除 悬浮按钮容器 */
-/* 修正：让操作按钮绝对定位在两端 */
 .card-ops {
     position: absolute;
     top: 4px;
@@ -140,36 +125,15 @@ body {
     z-index: 20;
 }
 .card-ops.show { display: block; }
-
-/* 分别定位编辑和删除 */
 .opt-btn.edit {
     position: absolute;
-    left: 0; /* 死死钉在左边 */
+    left: 0;
     top: 0;
 }
 .opt-btn.del {
     position: absolute;
-    right: 0; /* 死死钉在右边 */
+    right: 0;
     top: 0;
-}
-
-/* 通用弹窗样式（复用于编辑和删除） */
-.modal-mask {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); display: none;
-    justify-content: center; align-items: center; z-index: 200;
-}
-.modal-mask.show { display: flex; }
-.modal-box {
-    background: var(--bg-color); width: 85%; max-width: 340px;
-    border-radius: var(--border-radius); padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-.modal-box input {
-    width: 100%; padding: 10px 12px; margin-bottom: 12px;
-    border: 1px solid #e8e0d5; border-radius: 8px;
-    background: var(--card-bg); font-size: 14px; outline: none;
 }
 
 /* 搜索区 */
@@ -191,14 +155,8 @@ body {
     min-width: 100px; overflow: hidden; border: 1px solid #eee; padding: 4px 0;
 }
 .dropdown-menu.show { display: flex; }
-.dropdown-item { 
-    padding: 10px 16px; font-size: 14px; color: var(--text-main); cursor: pointer;
-}
-.dropdown-item.active {
-    color: var(--theme-color);
-    font-weight: 600;
-    background-color: var(--theme-light);
-}
+.dropdown-item { padding: 10px 16px; font-size: 14px; color: var(--text-main); cursor: pointer; }
+.dropdown-item.active { color: var(--theme-color); font-weight: 600; background-color: var(--theme-light); }
 #searchInput { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; padding: 8px 0; min-width: 0; }
 .search-btn { background: var(--theme-color); color: #fff; border: none; border-radius: 50px; padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
 .search-btn:active { opacity: 0.8; }
@@ -211,28 +169,17 @@ body {
 .cat-item { font-size: 15px; color: var(--text-sub); white-space: nowrap; padding-bottom: 6px; cursor: pointer; }
 .cat-item.active { color: var(--theme-color); font-weight: 600; border-bottom: 2px solid var(--theme-color); }
 
-/* 主展示区与海报（改为一行 3 个，文字最多两行） */
+/* 主展示区与海报 */
 .main-content { padding: 0 16px; }
 .poster-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
 .poster-card { background: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow-soft); cursor: pointer; }
 .poster-img-wrap { position: relative; width: 100%; aspect-ratio: 3 / 4; background: #e8e0d5; }
 .poster-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .poster-tag { position: absolute; top: 4px; left: 4px; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 10px; padding: 2px 4px; border-radius: 4px; backdrop-filter: blur(2px); }
-
-/* 海报名字，最多显示两行 */
 .poster-name { 
-    padding: 6px 4px; 
-    font-size: 12px; 
-    font-weight: 500; 
-    text-align: center; 
-    /* 两行省略逻辑 */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
-    height: 36px; /* 固定高度，保证排版整齐 */
+    padding: 6px 4px; font-size: 12px; font-weight: 500; text-align: center; 
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; text-overflow: ellipsis; line-height: 1.3; height: 36px;
 }
 
 /* 全站搜索排版 */
@@ -246,21 +193,38 @@ body {
 /* 页脚 */
 .app-footer { text-align: center; font-size: 12px; color: var(--text-sub); padding: 20px 0; position: absolute; bottom: 0; width: 100%; }
 
-/* 弹窗遮罩 */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
-.modal-overlay.show { display: flex; }
-.modal-content { background: var(--bg-color); width: 85%; max-width: 340px; border-radius: var(--border-radius); padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+/* 弹窗通用遮罩与盒子 */
+.modal-overlay, .modal-mask { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.4); display: none; 
+    justify-content: center; align-items: center; z-index: 200; 
+}
+.modal-overlay.show, .modal-mask.show { display: flex; }
+.modal-content, .modal-box { 
+    background: var(--bg-color); width: 85%; max-width: 340px; 
+    border-radius: var(--border-radius); padding: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+}
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.modal-header h3 { font-size: 16px; font-weight: 600; }
-.guest-btn { font-size: 13px; color: var(--text-sub); border: 1px solid #ccc; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
-.modal-content input { width: 100%; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #e8e0d5; border-radius: 8px; background: var(--card-bg); font-size: 14px; outline: none; }
-.modal-content input:focus { border-color: var(--theme-color); }
+.modal-header h3, .modal-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.guest-btn { font-size: 13px; color: var(--text-sub); border: 1px solid #ccc; padding: 2px 8px; border-radius: 10px; cursor: pointer; margin-bottom: 16px;}
+
+.modal-content input, .modal-box input { 
+    width: 100%; padding: 10px 12px; margin-bottom: 12px; 
+    border: 1px solid #e8e0d5; border-radius: 8px; 
+    background: var(--card-bg); font-size: 14px; outline: none; 
+}
+.modal-content input:focus, .modal-box input:focus { border-color: var(--theme-color); }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
 .modal-btns button { padding: 8px 16px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; }
 .btn-cancel { background: #e0e0e0; color: #333; }
 .btn-confirm { background: var(--theme-color); color: #fff; }
 
-/* 🚀 调试窗口样式 */
+/* Toast 提示框 */
+#toastMsg { opacity: 0; }
+#toastMsg.show { display: block !important; opacity: 1; }
+
+/* 🚀 调试窗口 */
 #debugBox {
     position: fixed; bottom: 0; left: 0; right: 0; height: 150px;
     background: rgba(20, 20, 20, 0.95); color: #0f0; font-family: monospace;
