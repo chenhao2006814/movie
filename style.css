@@ -70,14 +70,16 @@ body {
 .source-card.add-btn {
     border: 1px dashed var(--text-sub); 
     color: var(--text-sub); 
-    font-size: 20px; 
-    /* 改用 flex 完美居中 */
+    font-size: 22px; /* 稍微放大一点 */
+    font-family: Arial, sans-serif; /* 用英文字体保证符号绝对居中 */
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;
-    height: 100%; 
-    min-height: 38px; /* 保证高度和旁边的卡片一致 */
+    padding: 0; 
+    height: 100%; /* 强制和旁边的卡片同高 */
+    box-sizing: border-box;
+    /* 用行高来微调加号的垂直位置 */
+    line-height: 1;
 }
 
 /* 搜索区 */
