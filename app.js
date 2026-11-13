@@ -62,27 +62,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewAllSearch = document.getElementById('viewAllSearch');
     const categoryNav = document.getElementById('categoryNav');
 
-    searchBtn.addEventListener('click', () => {
-        const kw = searchInput.value.trim();
-        if (!kw) {
-            log("搜索词为空，停止搜索");
-            return;
-        }
+    searchBtn.addEventListener('click', async () => {
+    const kw = searchInput.value.trim();
+    if (!kw) {
+        log("搜索词为空，停止搜索");
+        return;
+    }
+    
+    log(`开始真实搜索: ${kw}，模式: ${currentSearchType}`);
+    categoryNav.style.display = 'none'; 
+    
+    // 你现在选中的是哪个源？咱们先从选中的源卡片里拿 api 地址
+    const activeCard = document.querySelector('.source-card.active');
+    const apiUrl = activeCard ? activeCard.dataset.api : "https://360zy.com/api.php/provide/vod/"; // 兜底 360
+
+    if (currentSearchType === 'current') {
+        // ========= 单源搜索 =========
+        viewHome.style.display = 'block'; // 暂时复用主页视图展示结果
+        viewAllSearch.style.display = 'none';
         
-        log(`开始搜索: ${kw}，模式: ${currentSearchType}`);
-        categoryNav.style.display = 'none'; 
-        
-        if (currentSearchType === 'all') {
-            viewHome.style.display = 'none';
-            viewAllSearch.style.display = 'block';
-            document.querySelector('.search-title').textContent = `搜索结果：${kw}`;
-            log("展示全站搜索结果视图");
-        } else {
-            viewHome.style.display = 'block';
-            viewAllSearch.style.display = 'none';
-            log("展示当前资源搜索结果视图");
+        try {
+            // 注意：把你 GoogieHost 的完整地址填在这里
+            const res = await fetch(`http://soys.whf.bz/api/search.php?kw=${encodeURIComponent(kw)}&api=${encodeURIComponent(apiUrl)}`);
+            const json = await res.json();
+            
+            if (json.code === 0) {
+                log(`成功拿到 ${json.data.length} 条数据`);
+                renderRealPosters(json.data);
+            } else {
+                log(`搜索失败: ${json.msg}`);
+                showToast(json.msg);
+            }
+        } catch(e) {
+            log(`网络请求出错: ${e.message}`);
         }
+
+    } else {
+        // ========= 全站搜索 =========
+        // 后期写并发请求，目前先测试单源
+        showToast('全站搜索逻辑待开发');
+    }
+});
+
+// 渲染真实的电影海报
+function renderRealPosters(dataList) {
+    // 找主页那个容器
+    const homeGrid = document.querySelector('#viewHome .poster-grid');
+    homeGrid.innerHTML = ''; // 清空假海报
+    
+    // 只取前 12 条防止太长
+    dataList.slice(0, 12).forEach(movie => {
+        // 苹果CMS标准字段：vod_name, vod_pic, vod_remarks
+        const name = movie.vod_name || '未知';
+        const pic = movie.vod_pic || 'https://via.placeholder.com/300x400/e0c3a6/fff?text=No+Image';
+        const remarks = movie.vod_remarks || '';
+        
+        const card = document.createElement('div');
+        card.className = 'poster-card';
+        card.onclick = () => log(`点击了电影：${name}`);
+        
+        card.innerHTML = `
+            <div class="poster-img-wrap">
+                <img src="${pic}" alt="${name}" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
+                ${remarks ? `<span class="poster-tag">${remarks}</span>` : ''}
+            </div>
+            <div class="poster-name">${name}</div>
+        `;
+        homeGrid.appendChild(card);
     });
+}
 
     // 3. 管理员交互逻辑
     const adminModal = document.getElementById('adminModal');
