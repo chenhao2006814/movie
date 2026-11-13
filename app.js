@@ -105,6 +105,7 @@ searchBtn.addEventListener('click', async () => {
 
 // 渲染真实的电影海报
 // 渲染真实的电影海报并绑定跳转
+// 渲染真实的电影海报并绑定跳转
 function renderRealPosters(dataList) {
     const homeGrid = document.querySelector('#viewHome .poster-grid');
     homeGrid.innerHTML = ''; 
@@ -115,14 +116,8 @@ function renderRealPosters(dataList) {
         const remarks = movie.vod_remarks || '';
         const vodId = movie.vod_id;
         
-        // 提取当前选中的源域名，用来拼接详情页链接
-        let domain = "https://360zy.com"; // 默认兜底
-        if (activeCard && activeCard.dataset.api) {
-            try {
-                const urlObj = new URL(activeCard.dataset.api);
-                domain = urlObj.origin;
-            } catch(e) {}
-        }
+        // 【修复版】直接写死 360 的域名，因为咱们现在测试的就是 360
+        const domain = "https://360zy.com"; 
         
         // 拼接真实的详情页跳转链接
         const detailUrl = `${domain}/index.php/vod/detail/id/${vodId}.html`;
@@ -137,7 +132,6 @@ function renderRealPosters(dataList) {
         
         card.innerHTML = `
             <div class="poster-img-wrap">
-                <!-- referrerpolicy 防止防盗链 -->
                 <img src="${pic}" alt="${name}" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
                 ${remarks ? `<span class="poster-tag">${remarks}</span>` : ''}
             </div>
