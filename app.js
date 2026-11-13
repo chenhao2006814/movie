@@ -62,84 +62,139 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewAllSearch = document.getElementById('viewAllSearch');
     const categoryNav = document.getElementById('categoryNav');
 
-searchBtn.addEventListener('click', async () => {
-    const kw = searchInput.value.trim();
-    if (!kw) {
-        log("搜索词为空，停止搜索");
-        return;
-    }
-    
-    log(`开始真实搜索: ${kw}`);
-    categoryNav.style.display = 'none'; 
-    
-    // 【暴力测试版】直接写死 360 的接口
-    const apiUrl = "https://360zy.com/api.php/provide/vod/";
-    
-    if (currentSearchType === 'current') {
-        viewHome.style.display = 'block'; 
-        viewAllSearch.style.display = 'none';
-        
-        try {
-            // 如果你还在 CF Pages 测试，这里必须写 http://soys.whf.bz/api/...
-            // 如果你已经搬到 GoogieHost 了，写 api/search.php 就行
-            const fetchUrl = `http://soys.whf.bz/api/search.php?kw=${encodeURIComponent(kw)}&api=${encodeURIComponent(apiUrl)}`;
-            
-            log(`准备请求: ${fetchUrl}`);
-            const res = await fetch(fetchUrl);
-            const json = await res.json();
-            
-            if (json.code === 0) {
-                log(`成功拿到 ${json.data.length} 条数据`);
-                renderRealPosters(json.data);
-            } else {
-                log(`搜索失败: ${json.msg}`);
-                showToast(json.msg);
-            }
-        } catch(e) {
-            log(`网络请求出错: ${e.message}`);
+    searchBtn.addEventListener('click', async () => {
+        const kw = searchInput.value.trim();
+        if (!kw) {
+            log("搜索词为空，停止搜索");
+            return;
         }
-    } else {
-        showToast('全站搜索逻辑待开发');
-    }
-});
-
-// 渲染真实的电影海报
-// 渲染真实的电影海报并绑定跳转
-// 渲染真实的电影海报并绑定跳转
-function renderRealPosters(dataList) {
-    const homeGrid = document.querySelector('#viewHome .poster-grid');
-    homeGrid.innerHTML = ''; 
-    
-    dataList.slice(0, 12).forEach(movie => {
-        const name = movie.vod_name || '未知';
-        const pic = movie.vod_pic || 'https://via.placeholder.com/300x400/e0c3a6/fff?text=No+Image';
-        const remarks = movie.vod_remarks || '';
-        const vodId = movie.vod_id;
         
-        // 【修复版】直接写死 360 的域名，因为咱们现在测试的就是 360
-        const domain = "https://360zy.com"; 
+        log(`开始真实搜索: ${kw}`);
+        categoryNav.style.display = 'none'; 
         
-        // 拼接真实的详情页跳转链接
-        const detailUrl = `${domain}/index.php/vod/detail/id/${vodId}.html`;
+        const apiUrl = "https://360zy.com/api.php/provide/vod/";
         
-        const card = document.createElement('div');
-        card.className = 'poster-card';
-        // 点击打开新窗口跳转
-        card.onclick = () => {
-            log(`跳转到: ${detailUrl}`);
-            window.open(detailUrl, '_blank', 'noopener,noreferrer');
-        };
-        
-        card.innerHTML = `
-            <div class="poster-img-wrap">
-                <img src="${pic}" alt="${name}" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
-                ${remarks ? `<span class="poster-tag">${remarks}</span>` : ''}
-            </div>
-            <div class="poster-name">${name}</div>
-        `;
-        homeGrid.appendChild(card);
+        if (currentSearchType === 'current') {
+            viewHome.style.display = 'block'; 
+            viewAllSearch.style.display = 'none';
+            
+            try {
+                const fetchUrl = `http://soys.whf.bz/api/search.php?kw=${encodeURIComponent(kw)}&api=${encodeURIComponent(apiUrl)}`;
+                log(`准备请求: ${fetchUrl}`);
+                const res = await fetch(fetchUrl);
+                const json = await res.json();
+                
+                if (json.code === 0) {
+                    log(`成功拿到 ${json.data.length} 条数据`);
+                    renderRealPosters(json.data);
+                } else {
+                    log(`搜索失败: ${json.msg}`);
+                    showToast(json.msg);
+                }
+            } catch(e) {
+                log(`网络请求出错: ${e.message}`);
+            }
+        } else {
+            showToast('全站搜索逻辑待开发');
+        }
     });
-}
+
+    // 渲染真实的电影海报并绑定跳转播放
+    function renderRealPosters(dataList) {
+        const homeGrid = document.querySelector('#viewHome .poster-grid');
+        homeGrid.innerHTML = ''; 
+        
+        dataList.slice(0, 12).forEach(movie => {
+            const name = movie.vod_name || '未知';
+            const pic = movie.vod_pic || 'https://via.placeholder.com/300x400/e0c3a6/fff?text=No+Image';
+            const remarks = movie.vod_remarks || '';
+            
+            const card = document.createElement('div');
+            card.className = 'poster-card';
+            
+            // 点击卡片直接打开播放器
+            card.onclick = () => openPlayerModal(movie);
+            
+            card.innerHTML = `
+                <div class="poster-img-wrap">
+                    <img src="${pic}" alt="${name}" referrerpolicy="no-referrer" onerror="this.src='https://via.placeholder.com/300x400/e0c3a6/fff?text=Error'">
+                    ${remarks ? `<span class="poster-tag">${remarks}</span>` : ''}
+                </div>
+                <div class="poster-name">${name}</div>
+            `;
+            homeGrid.appendChild(card);
+        });
+    }
+
+    // ============ 播放器核心逻辑 ============
+    let dp = null; // 全局播放器实例
+
+    window.openPlayerModal = function(movie) {
+        log(`打开播放器: ${movie.vod_name}`);
+        document.getElementById('playerModal').classList.add('show');
+        document.getElementById('playTitle').textContent = movie.vod_name;
+        
+        // 去除简介里的 HTML 标签
+        const desc = movie.vod_content ? movie.vod_content.replace(/<[^>]+>/g, '') : '暂无简介';
+        document.getElementById('playDesc').textContent = desc;
+
+        const epContainer = document.getElementById('playEpisodes');
+        epContainer.innerHTML = '';
+
+        // 解析剧集 (苹果CMS格式: 第01集$链接#第02集$链接)
+        const playUrls = movie.vod_play_url ? movie.vod_play_url.split('#') : [];
+        
+        if (playUrls.length === 0 || !playUrls[0]) {
+            epContainer.innerHTML = '<span style="color:#fff">暂无可用播放源</span>';
+            return;
+        }
+
+        playUrls.forEach((ep, index) => {
+            const epInfo = ep.split('$'); 
+            if (epInfo.length < 2) return;
+
+            const epName = epInfo[0];
+            const epUrl = epInfo[1];
+
+            const btn = document.createElement('div');
+            btn.style.cssText = "text-align:center; padding: 8px; background: #222; color: #ccc; border-radius: 6px; font-size: 13px; cursor: pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;";
+            btn.textContent = epName;
+            btn.onclick = () => playVideo(epUrl, epName);
+            epContainer.appendChild(btn);
+            
+            // 默认自动播放第一集
+            if (index === 0) {
+                setTimeout(() => playVideo(epUrl, epName), 100);
+            }
+        });
+    };
+
+    window.playVideo = function(url, title) {
+        log(`开始播放: ${title}`);
+        document.getElementById('playTitle').textContent = title;
+
+        if (dp) {
+            dp.destroy(); // 销毁旧实例
+        }
+
+        // 初始化 DPlayer
+        dp = new DPlayer({
+            container: document.getElementById('dplayer'),
+            autoplay: true,
+            theme: '#d97736',
+            video: {
+                url: url,
+                type: 'auto' // 自动识别 m3u8
+            }
+        });
+    };
+
+    window.closePlayerModal = function() {
+        document.getElementById('playerModal').classList.remove('show');
+        if (dp) {
+            dp.pause();
+        }
+    };
 
     // 3. 管理员交互逻辑
     const adminModal = document.getElementById('adminModal');
@@ -239,7 +294,6 @@ function renderRealPosters(dataList) {
         log(`打开编辑弹窗: 第 ${index} 个源`);
         
         const cardEl = document.querySelectorAll('.source-card:not(.add-btn)')[index];
-        // 提取卡片纯文本
         let oldName = "";
         cardEl.childNodes.forEach(node => {
             if(node.nodeType === 3 && node.textContent.trim()) oldName += node.textContent.trim();
