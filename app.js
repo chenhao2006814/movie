@@ -62,28 +62,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewAllSearch = document.getElementById('viewAllSearch');
     const categoryNav = document.getElementById('categoryNav');
 
-    searchBtn.addEventListener('click', async () => {
+searchBtn.addEventListener('click', async () => {
     const kw = searchInput.value.trim();
     if (!kw) {
         log("搜索词为空，停止搜索");
         return;
     }
     
-    log(`开始真实搜索: ${kw}，模式: ${currentSearchType}`);
+    log(`开始真实搜索: ${kw}`);
     categoryNav.style.display = 'none'; 
     
-    // 你现在选中的是哪个源？咱们先从选中的源卡片里拿 api 地址
-    const activeCard = document.querySelector('.source-card.active');
-    const apiUrl = activeCard ? activeCard.dataset.api : "https://360zy.com/api.php/provide/vod/"; // 兜底 360
-
+    // 【暴力测试版】直接写死 360 的接口
+    const apiUrl = "https://360zy.com/api.php/provide/vod/";
+    
     if (currentSearchType === 'current') {
-        // ========= 单源搜索 =========
-        viewHome.style.display = 'block'; // 暂时复用主页视图展示结果
+        viewHome.style.display = 'block'; 
         viewAllSearch.style.display = 'none';
         
         try {
-            // 注意：把你 GoogieHost 的完整地址填在这里
-            const res = await fetch(`http://soys.whf.bz/api/search.php?kw=${encodeURIComponent(kw)}&api=${encodeURIComponent(apiUrl)}`);
+            // 如果你还在 CF Pages 测试，这里必须写 http://soys.whf.bz/api/...
+            // 如果你已经搬到 GoogieHost 了，写 api/search.php 就行
+            const fetchUrl = `http://soys.whf.bz/api/search.php?kw=${encodeURIComponent(kw)}&api=${encodeURIComponent(apiUrl)}`;
+            
+            log(`准备请求: ${fetchUrl}`);
+            const res = await fetch(fetchUrl);
             const json = await res.json();
             
             if (json.code === 0) {
@@ -96,10 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(e) {
             log(`网络请求出错: ${e.message}`);
         }
-
     } else {
-        // ========= 全站搜索 =========
-        // 后期写并发请求，目前先测试单源
         showToast('全站搜索逻辑待开发');
     }
 });
