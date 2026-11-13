@@ -10,39 +10,43 @@ function log(msg) {
 document.addEventListener('DOMContentLoaded', () => {
     log("页面加载完成，JS 已启动");
 
-    // 1. 下拉框逻辑（增加高亮状态与点击收起）
-    const searchTypeBtn = document.getElementById('searchTypeBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const searchTypeText = document.getElementById('searchTypeText');
-    const dropdownItems = document.querySelectorAll('.dropdown-item');
-    let currentSearchType = 'current';
+// 1. 下拉框逻辑（增加高亮状态与点击收起）
+const searchTypeBtn = document.getElementById('searchTypeBtn');
+const dropdownMenu = document.getElementById('dropdownMenu');
+const searchTypeText = document.getElementById('searchTypeText');
+const dropdownItems = document.querySelectorAll('.dropdown-item');
+let currentSearchType = 'current';
 
-    // 打开/关闭下拉
-    searchTypeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('show');
-    });
+// 打开/关闭下拉
+searchTypeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle('show');
+});
 
-    // 点击空白处关闭
-    document.addEventListener('click', () => {
+// 点击页面任何其他地方，自动收起菜单
+document.addEventListener('click', (e) => {
+    if (!searchTypeBtn.contains(e.target)) {
         dropdownMenu.classList.remove('show');
-    });
+    }
+});
 
-    // 点击选项
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            currentSearchType = e.target.dataset.type;
-            searchTypeText.textContent = e.target.textContent;
-            
-            // 移除所有高亮，给当前点击的加上高亮
-            dropdownItems.forEach(i => i.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            // 自动收起菜单
-            dropdownMenu.classList.remove('show');
-            log(`切换搜索模式: ${e.target.textContent}`);
-        });
+// 点击选项
+dropdownItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.stopPropagation(); // 阻止冒泡，防止触发外层的关闭逻辑
+        
+        currentSearchType = e.target.dataset.type;
+        searchTypeText.textContent = e.target.textContent;
+        
+        // 移除所有高亮，给当前点击的加上高亮
+        dropdownItems.forEach(i => i.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // 自动收起菜单
+        dropdownMenu.classList.remove('show');
+        log(`切换搜索模式: ${e.target.textContent}`);
     });
+});
 
     // 2. 搜索按钮逻辑
     const searchBtn = document.getElementById('searchBtn');
